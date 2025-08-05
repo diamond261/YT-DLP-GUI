@@ -2,6 +2,7 @@ from Modules import function as fc
 import tkinter.filedialog as tkf
 from datetime import datetime
 from CTkTable import CTkTable
+from datetime import datetime
 import customtkinter as ctk
 from PIL import Image   
 import calendar
@@ -9,18 +10,18 @@ import sys
 import os
 
 directory = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(os.path.abspath(__file__))
-os.environ["PATH"] += os.pathsep + (directory+"/App")
+os.environ["PATH"] += os.pathsep + (fc.resource_path(directory+"/App"))
+current_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+fc.logger.add(fc.resource_path(f"{directory}/logs/log_{current_time}.log"))
+fc.logger.debug(f"The script is on {directory}")
+if not os.path.exists(fc.resource_path(f"{directory}/Cookies")):
+    os.mkdir(fc.resource_path(f"{directory}/Cookies"))
+    fc.logger.info("Cookies folder is created")
+else:
+    fc.logger.info("Cookies directory already exists")
 app_state="system"
 date_value=""
 date_status=0
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except AttributeError:
-        base_path = os.path.abspath(".")
-    
-    path = os.path.join(base_path, relative_path)
-    return os.path.normpath(path)
 #color select
 global_color=("#d8e2f9","#313443")
 Reverse_global_color=("#313443","#d8e2f9")
@@ -29,19 +30,19 @@ select_color=("#868e9f","#484c60")
 hover_color=("#6a7082","#111d2f")
 text_color=("#2c4f85","#b3bcd9")
 #image
-dl_image=ctk.CTkImage(light_image=Image.open(resource_path("resource/dl_light.png")),dark_image=Image.open(resource_path("resource/dl_drak.png")),size=(29, 29))
-updata_image=ctk.CTkImage(light_image=Image.open(resource_path("resource/updata_light.png")),dark_image=Image.open(resource_path("resource/updata_dark.png")),size=(15,20))
-browse_image=ctk.CTkImage(light_image=Image.open(resource_path("resource/browse_light.png")),dark_image=Image.open(resource_path("resource/browse_dark.png")),size=(25,25))
-add_list_image=ctk.CTkImage(light_image=Image.open(resource_path("resource/add_light.png")),dark_image=Image.open(resource_path("resource/add_dark.png")),size=(28,28))
-setting_image=ctk.CTkImage(light_image=Image.open(resource_path("resource/setting_light.png")),dark_image=Image.open(resource_path("resource/setting_dark.png")),size=(28,28))
-del_list_image=ctk.CTkImage(light_image=Image.open(resource_path("resource/delete_light.png")),dark_image=Image.open(resource_path("resource/delete_dark.png")),size=(28,28))
+dl_image=ctk.CTkImage(light_image=Image.open(fc.resource_path("resource/dl_light.png")),dark_image=Image.open(fc.resource_path("resource/dl_drak.png")),size=(29, 29))
+updata_image=ctk.CTkImage(light_image=Image.open(fc.resource_path("resource/updata_light.png")),dark_image=Image.open(fc.resource_path("resource/updata_dark.png")),size=(15,20))
+browse_image=ctk.CTkImage(light_image=Image.open(fc.resource_path("resource/browse_light.png")),dark_image=Image.open(fc.resource_path("resource/browse_dark.png")),size=(25,25))
+add_list_image=ctk.CTkImage(light_image=Image.open(fc.resource_path("resource/add_light.png")),dark_image=Image.open(fc.resource_path("resource/add_dark.png")),size=(28,28))
+setting_image=ctk.CTkImage(light_image=Image.open(fc.resource_path("resource/setting_light.png")),dark_image=Image.open(fc.resource_path("resource/setting_dark.png")),size=(28,28))
+del_list_image=ctk.CTkImage(light_image=Image.open(fc.resource_path("resource/delete_light.png")),dark_image=Image.open(fc.resource_path("resource/delete_dark.png")),size=(28,28))
 #Main-windows
 win=ctk.CTk(ctk.set_appearance_mode(app_state))
 win.title("YouTube Video Downloader")
 win.geometry("925x500") 
 win.resizable(False,False)
 #win.attributes("-topmost",True)
-win.iconbitmap(resource_path("resource/ytdlp_icon.ico"))
+win.iconbitmap(fc.resource_path("resource/ytdlp_icon.ico"))
 win.configure(fg_color=global_color)
 #warningwindow
 class WarningWindow:
@@ -58,7 +59,42 @@ class WarningWindow:
         # Create widgets
         self.warning_text = ctk.CTkLabel(
             self.warning_toplevel,
-            text="Pleas write a URl and Path \nand choose Foramt and Quality",  # Original text preserved
+            text="Pleas write a URl and Path \nAnd choose Foramt and Quality",  # Original text preserved
+            font=("Arial", 20),
+            text_color=text_color
+        )
+        self.warning_text.pack()
+
+        self.warning_btn = ctk.CTkButton(
+            self.warning_toplevel,
+            width=75,
+            height=38,
+            text="Ok",  # Original button text
+            command=self.destroy_window,
+            font=("Arial", 17),
+            corner_radius=30,fg_color=global_color,
+                           border_width=3,border_color=frame_color,
+                         hover_color=hover_color,text_color=text_color)
+        self.warning_btn.pack(pady=5)
+
+    def destroy_window(self):
+        """Destroy the toplevel window"""
+        self.warning_toplevel.destroy()
+class TypeWarningWindow:
+    def __init__(self, icon_path, global_color, text_color, reverse_global_color, hover_color):
+        # Initialize toplevel window
+        self.warning_toplevel = ctk.CTkToplevel()
+        self.warning_toplevel.title("warning")
+        self.warning_toplevel.geometry("350x150")
+        self.warning_toplevel.resizable(False, False)
+        self.warning_toplevel.attributes("-topmost", True)
+        self.warning_toplevel.iconbitmap(icon_path)
+        self.warning_toplevel.configure(fg_color=global_color)
+
+        # Create widgets
+        self.warning_text = ctk.CTkLabel(
+            self.warning_toplevel,
+            text="Pleas choose a \ncorrect format or quality",  # Original text preserved
             font=("Arial", 20),
             text_color=text_color
         )
@@ -81,20 +117,29 @@ class WarningWindow:
         self.warning_toplevel.destroy()
 #event
 def main():
+    fc.logger.info("Init download cmd")
+    global directory
     def base_checker():
+        fc.logger.info("Start base check")
         base_list=[]
         check_list=[url_entry,path_entry,common_format_options,quality_options,type_options]
         for check in check_list:
             if "entry" in str(check):
                 temp=check.get()
+                fc.logger.debug(f"Entry value is {temp}")
                 if temp == "":
-                    warning=WarningWindow
+                    fc.logger.error("Null value")
+                    Warning=WarningWindow(icon_path=fc.resource_path("resource/ytdlp_icon.ico"),global_color=global_color,text_color=text_color,reverse_global_color=Reverse_global_color,hover_color=hover_color)
+                    return False
                 else:
                     base_list.append(temp)
             else:
                 temp=check.get().lower()
+                fc.logger.debug(f"Options value is {temp}")
                 if temp == "format" or temp == "quality":
-                    warning=WarningWindow
+                    fc.logger.error("Null value")
+                    Warning=WarningWindow(icon_path=fc.resource_path("resource/ytdlp_icon.ico"),global_color=global_color,text_color=text_color,reverse_global_color=Reverse_global_color,hover_color=hover_color)
+                    return False
                 else:
                     base_list.append(temp)
         return base_list
@@ -116,22 +161,62 @@ def main():
                 avc_function_on.append(temp)
         avc_function_on.append(date_value)
         return avc_function_on
+    def type_checker():
+        fc.logger.info("Start type check")
+        global type_options,quality_options,common_format_options
+        current_type=type_options.get()
+        fc.logger.debug(f"Current type is {current_type}")
+        current_quality=quality_options.get()
+        fc.logger.debug(f"Current quality is {current_quality}")
+        current_format=common_format_options.get()
+        fc.logger.debug(f"Current format is {current_format}")
+        if current_type == "Video":
+            if current_format in ["MP4","Webm","Mkv","Mov","Avi","Flv"] and current_quality in ["Best","4320p","2160p","1440p","1080p","720p","480p","360p","240p","144p"]:
+                return True
+            else:
+                fc.logger.error("worng type ,quality and format")
+                Warning=TypeWarningWindow(icon_path=fc.resource_path("resource/ytdlp_icon.ico"),global_color=global_color,text_color=text_color,reverse_global_color=Reverse_global_color,hover_color=hover_color)
+                return False
+        else:   
+            if current_format in ["MP3","M4a","Aac","Alac","Flac","Opus"] and current_quality in ["Best","192Kbps","160Kbps","128Kbps"]:
+                return True
+            else:
+                fc.logger.error("worng type ,quality and format")
+                Warning=TypeWarningWindow(icon_path=fc.resource_path("resource/ytdlp_icon.ico"),global_color=global_color,text_color=text_color,reverse_global_color=Reverse_global_color,hover_color=hover_color)
+                return False
     if table.get() != [['No.', 'URL', 'Format', 'Quality']]:
+        fc.logger.info("Getting table data")
         temp=table.get()
+        adv_temp=advence_checker()
+        fc.logger.debug(f"Adv settings is {adv_temp}")
         for i in range(temp[-1][0]):
             url=temp[i+1][1]
             fmt=temp[i+1][2]
             qlt=temp[i+1][3]
-            base_temp=[url,fmt,qlt]
-            breakpoint()
-            adv_temp=advence_checker()
-            fc.main(base_temp,adv_temp)
+            type=type_options.get
+            base_temp=[url,fmt,qlt,type]
+            fc.logger.debug(f"Base settings is {base_temp}")
+            type_temp=type_checker()
+            fc.logger.debug(f"Type checker output is {type_temp}")
+            if type_temp:
+                fc.main(base_temp,adv_temp)
+            else:
+                break
     else:
         base_temp=base_checker()
-        adv_temp=advence_checker()
-        fc.main(base_temp,adv_temp)
+        if base_temp:
+            type_temp=type_checker()
+            fc.logger.debug(f"Type checker output is {type_temp}")
+            if type_temp:
+                if base_temp:
+                    fc.logger.debug(f"Base settings is {base_temp}")
+                    adv_temp=advence_checker()
+                    fc.logger.debug(f"Adv settings is {adv_temp}")
+                    output=fc.main(base_temp,adv_temp,directory)
+                    fc.logger.debug(f"Download output is {output}")
 def app_mode_event(mode):
   ctk.set_appearance_mode(mode)
+  fc.logger.info(f"App change to {mode} mode")
 def path_select_event():
   path=tkf.askdirectory(title="Chose a path to save")
   if path:
@@ -139,17 +224,19 @@ def path_select_event():
     path_entry.insert(0,path)
 def type_change_event(type):
     if type == "Video":
+        fc.logger.info("Type change to video")
         quality_options.configure(values=["Quality","Best","4320p","2160p","1440p","1080p","720p","480p","360p","240p","144p"])
         quality_options.place(x=12.5,y=140)
         common_format_options.configure(values=["Format","MP4","Webm","Mkv","Mov","Avi","Flv"])
         common_format_options.place(x=12.5,y=80)
     elif type == "Audio":
+        fc.logger.info("Type change to audio")
         quality_options.configure(values=["Quality","Best","192Kbps","160Kbps","128Kbps"])
         quality_options.place(x=12.5,y=140)
         common_format_options.configure(values=["Format","MP3","M4a","Aac","Alac","Flac","Opus"])
         common_format_options.place(x=12.5,y=80)
 def add_to_table():
-    global table_status
+    fc.logger.info("Adding to the table")
     url = url_entry.get()
     fmt = common_format_options.get()
     quality = quality_options.get()
@@ -159,8 +246,10 @@ def add_to_table():
         new_row = [str(row_number), url, fmt, quality]
         table.add_row(index=row_number, values=new_row)
     else:
-        warning_window=WarningWindow(icon_path="github/YT-DLP-GUI/ytdlp_icon.ico",global_color=global_color,text_color=text_color,reverse_global_color=Reverse_global_color,hover_color=hover_color)
+        fc.logger.error("Null value")
+        warning_window=WarningWindow(icon_path=fc.resource_path("resource/ytdlp_icon.ico"),global_color=global_color,text_color=text_color,reverse_global_color=Reverse_global_color,hover_color=hover_color)
 def delete_row(num):
+    fc.logger.info("Deleting table value")
     try:
         row_index = int(num)
         if row_index >= 1:
@@ -169,10 +258,13 @@ def delete_row(num):
             for i in range(1, len(current_data)):
                 current_data[i][0] = str(i)
             table.update_values(current_data)
+            fc.logger.info("Successed delete the value")
         else:
-            print("overflowed")
+            fc.logger.info("Value delete failed")
+            fc.logger.error("overflowed")
     except ValueError:
-        print("valueerror")
+        fc.logger.info("Value delete failed")
+        fc.logger("valueerror")
 def get_number():
     dialog = ctk.CTkInputDialog(text="Type a No. :", title="Delete a row",fg_color=global_color,
                                 button_fg_color=global_color,button_hover_color=hover_color,
@@ -291,7 +383,7 @@ table_scrollable_frame.place(x=215, y=290)
 cookies_options=ctk.CTkOptionMenu(dl_option_frame,width=150,
                                   height=30,
                                   corner_radius=25,
-                                  values=["Cookies import OFF","Chrome","Edge", "Firefox", "Opera", "Brave","Vivaldi", "Whale"],
+                                  values=["Cookies import OFF","Cookies.txt", "Firefox", "Opera", "Brave","Vivaldi", "Whale"],
                                   font=("Arial",17),
                                     dropdown_font=("Arial",16),
                                    fg_color=global_color,
@@ -301,7 +393,7 @@ cookies_options=ctk.CTkOptionMenu(dl_option_frame,width=150,
                                    dropdown_fg_color=global_color,
                                    dropdown_hover_color=hover_color,
                                    dropdown_text_color=text_color,
-                                   state="disabled")
+)
 cookies_options.place(x=205,y=35,anchor="w")
 sb_options=ctk.CTkOptionMenu(dl_option_frame,width=120,
                              height=30,
@@ -458,4 +550,6 @@ table = CTkTable(table_scrollable_frame, row=1, column=4, values=[["No.", "URL",
 table.pack(expand=True, fill="both", padx=10, pady=5)
 
 if __name__ == "__main__":
+    fc.logger.info("Start GUI")
     win.mainloop()
+    fc.logger.info("App closed")
