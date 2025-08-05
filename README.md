@@ -30,22 +30,9 @@ Welcome to **YT DLP GUI**,the easiest GUI for yt-dlp.
    cd YT-DLP-GUI
    ```
 
-3. **Install Poetry and Pyinstaller**:
+3. **Install dependencies**:
    It's will help you to esay to build:
 
    ```bash
-   pip install poetry pyinstaller
+   pip install pyproject.toml
    ```
-
-4. **Configure with Poetry**:
-   Run Poetry to configure the build environment. :
-
-   ```bash
-   poetry install
-   ```
-
-   This command generates the necessary build files based on the Poetry configuration.
-
-5. **Build the Project**:
-   Once Poetry has configured the build files successfully, you can build the project using a suitable build tool (like Pyinstaller, nuitka and flet):
-   > > > > > > > my-feature
